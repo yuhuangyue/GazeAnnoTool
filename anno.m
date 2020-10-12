@@ -77,6 +77,10 @@ function ResetData()
 global RESULT
 global choose
 global left
+global IMGS;
+global EYEX;
+global EYEY;
+
 left = 0;
 imgs = RESULT{1,1};
 [newimgs ind] = sort(imgs);
@@ -103,6 +107,23 @@ for i=1:n(1)
     end
 end
 
+IMGS_ = cell(left,1);
+EYEX_ = ones(left,1);
+EYEY_ = ones(left,1);
+
+index = 1;
+for i=1:n(1)
+    if(choose(i)==1)
+        IMGS_{index,1} = IMGS{i,1};
+        EYEX_(index,1) = EYEX(i,1);
+        EYEY_(index,1) = EYEY(i,1);
+        index = index+1;
+    end
+end
+IMGS = IMGS_;
+EYEX = EYEX_;
+EYEY = EYEY_;
+
 % --- Executes on button press in pushbutton1.
 function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
@@ -119,8 +140,9 @@ INDEX = 1;
 IMGPATH = uigetdir;
 EyePosPath = [IMGPATH, '/eye.txt'];
 [IMGS, EYEX, EYEY] = textread(EyePosPath,'%s%n%n');
-RESULT = {IMGS,EYEX, EYEY};
+RESULT = {IMGS,EYEX,EYEY};
 ResetData();
+RESULT = {IMGS,EYEX,EYEY};
 set(handles.text6,'String', num2str(left));
 set(gcf,'WindowButtonDownFcn',@ButttonDownFcn);
 show_images(hObject, eventdata);
@@ -136,13 +158,13 @@ imgname = IMGS(INDEX);
 imgname = imgname{1,1};
 imgname = regexp(imgname, '/', 'split');
 path = [IMGPATH, '/', imgname{1,end}];
-
+INDEX
 % axes(handles.axes1);
 image = imread(path);
 imshow(image);
 
-x = EYEX(INDEX)
-y = EYEY(INDEX)
+x = EYEX(INDEX);
+y = EYEY(INDEX);
 
 hold on
 plot(x,y,'.','Color','g','MarkerSize',16);
@@ -181,21 +203,17 @@ global RESULT
 global choose
 global left
 
-
-while choose(INDEX) == 0
-    INDEX = INDEX + 1;
-end
 INDEX = INDEX + 1;
 set(handles.text6, 'String', num2str(left)); 
 left = left - 1 ;
 show_images(hObject, eventdata);
 
 
-if left == 5
+if left == 1
     fileID = fopen('res.txt','w');
-    imgnames = RESULT{1,1};
-    xs = RESULT{1,2};
-    ys = RESULT{1,3};
+    imgnames = RESULT{1,1}(1:466-left);
+    xs = RESULT{1,2}(1:466-left);
+    ys = RESULT{1,3}(1:466-left);
     for pos = 1:size(xs)
         fprintf(fileID,'%s %d %d\n',imgnames{pos,1}, round(xs(pos)), round(ys(pos)));
     end
